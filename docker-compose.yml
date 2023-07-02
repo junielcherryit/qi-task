@@ -1,0 +1,56 @@
+version: '3'
+services:
+
+  app:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    command: npm start
+    restart: always
+    tty: true
+    volumes:
+      - ./app:/home/node/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
+    networks:
+      - networkQi
+
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    command: npm start
+    restart: always
+    tty: true
+    volumes:
+      - ./api:/home/node/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    networks:
+      - networkQi
+
+  db:
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    tty: true
+    volumes:
+      - ./db/init-db:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_USER=userQi
+      - MYSQL_PASSWORD=passwordQi
+      - MYSQL_DATABASE=qi
+      - MYSQL_ROOT_PASSWORD=psw
+    ports:
+      - 3306:3306
+    networks:
+      - networkQi
+
+networks:
+  networkQi:
+    driver: bridge
